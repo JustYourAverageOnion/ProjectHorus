@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Calculation Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="mask-icon" href="safari-pinned-tab.svg" color="#000000">
+    <meta name="msapplication-TileColor" content="#ffc40d">
+    <meta name="theme-color" content="#ffffff">
+</head>
+
+<body>
+    <strong>MATH GAME</strong>
+    <div class="segment" id="points">Points: 0000</div>
+    <div class="number">#1</div>
+    <div class="time">50</div>
+    <button>Begin</button>
+    <div class="expression">343</div>
+    <input type="text" />
+    <div class="done"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
+    <script>
+        var expr = "1 + 1";
+        var expr_answer = 2;
+        var signs = "+×÷-".split("");
+        var difficulty = 1;
+        // Allow flooring
+        var diff_floor = true;
+        var points = 0;
+        var num = 0;
+        var time = 50;
+        var did_expr = 0;
+
+        function update_expr(expression) {
+            $(".expression").text(expression);
+        }
+
+        function floor(number) {
+            if (diff_floor) {
+                return Math.floor(number);
+            } else {
+                return number.toFixed(1);
+            }
+        }
+
+        function gen_expr() {
+            num++;
+            var left = floor(Math.random() * 7 + 5 * difficulty);
+            var right = floor(Math.random() * 7 + 5 * difficulty);
+            var sign = signs[Math.floor(Math.random() * signs.length)];
+
+            expr = left + " " + sign + " " + right;
+
+            switch (sign) {
+                case "+":
+                    expr_answer = left + right;
+                    break;
+                case "×":
+                    expr_answer = left * right;
+                    break;
+                case "÷":
+                    expr_answer = Math.floor(left / right);
+                    break;
+                case "-":
+                    expr_answer = left - right;
+                    break;
+            }
+            update_expr(expr);
+            $(".number").text("#" + num);
+            did_expr++;
+        }
+
+        var intr = 0;
+
+        function done() {
+            clearInterval(intr);
+            $(".number").fadeOut(100);
+            $(".time").fadeOut(100);
+            $(".expression, input").fadeOut(100);
+            $(".done")
+                .text(
+                    "Done. You solved " +
+                    did_expr +
+                    " expressions and got " +
+                    points +
+                    " points."
+                )
+                .fadeIn(100);
+        }
+
+        function begin() {
+            gen_expr();
+            var intr = setInterval(function () {
+                time--;
+                if (time <= 0) {
+                    // done.
+                    done();
+                }
+                $(".time").text(time);
+            }, 1000);
+        }
+        $(function () {
+            $(".done, .expression, input, .number, .time").hide();
+            $("button").click(function () {
+                $(".done, .expression, input, .number, .time").fadeIn(100);
+                $(this).hide();
+                begin();
+            });
+        });
+
+        $("input").on("keyup", function () {
+            var entered = $("input").val();
+
+            if (expr_answer === parseInt(entered, 10)) {
+                $("input").val("");
+                points += Math.floor(500 + Math.random() * 200);
+                $(".segment#points").text("Points: " + points);
+                gen_expr();
+            }
+        });
+    </script>
+</body>
+
+</html>
