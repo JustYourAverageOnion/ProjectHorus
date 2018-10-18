@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Counting Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="mask-icon" href="safari-pinned-tab.svg" color="#000000">
+    <meta name="msapplication-TileColor" content="#ffc40d">
+    <meta name="theme-color" content="#ffffff">
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Raleway');
+        *,
+        *::after,
+        *::before {
+            box-sizing: border-box;
+        }
+        html {
+            height: 100%;
+        }
+        body {
+            background: #ede6e3;
+            color: #36382e;
+            font-family: Raleway, Helvetica, Arial, sans-serif;
+            font-weight: 300;
+            height: 100%;
+            line-height: 1.5;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+            text-align: center;
+            text-shadow: 0.1vw 0.2vw rgba(218,218,217, 1);
+            width: 100%;
+            -webkit-font-smoothing: antialiased;
+        }
+        h3 {
+            font-family: Raleway;
+            font-size: 5vw;
+            font-weight: 100;
+        }
+        ul {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            list-style: none outside none;
+            margin: 0;
+            padding: 0;
+        }
+        li {
+            background: rgba(91,195,235, 0.6);
+            border: 0.15em solid rgba(255, 255, 255, 0.6);
+            border-radius: 0.2em;
+            color: #fff;
+            cursor: pointer;
+            font-family: Raleway;
+            font-size: 5vw;
+            margin: 0.5em;
+            padding: 0.3em;
+            transition: 0.1s all ease-in-out;
+            width: 20vw;
+        }
+        li:hover {
+            -webkit-transform: scale(1.1);
+            transform: scale(1.1);
+        }
+        .selected {
+            background: #94a8cc;
+        }
+        .correct {
+            background: #83c057;
+        }
+        .wrong {
+            background: #f06449;
+            cursor: not-allowed;
+        }
+        p {
+            font-size: 3vw;
+        }
+        .blinking {
+            -webkit-animation: blink 0.8s ease-out infinite;
+            animation: blink 0.8s ease-out infinite;
+            display: inline-block;
+        }
+        @-webkit-keyframes blink {
+            0% {
+                -webkit-transform: scale(1);
+                transform: scale(1);
+            }
+            90% {
+                -webkit-transform: scale(1.3);
+                transform: scale(1.3);
+            }
+        }
+        @keyframes blink {
+            0% {
+                -webkit-transform: scale(1);
+                transform: scale(1);
+            }
+            90% {
+                -webkit-transform: scale(1.3);
+                transform: scale(1.3);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h3>
+        <span class="question"></span>
+        <span>= </span>
+        <span class="blinking">?</span>
+    </h3>
+    <ul class="answers">
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+    <p>Total points:
+        <span class="points"></span>
+    </p>
+    <script>
+        (function () {
+            var game = {
+                points: 0,
+                question: false,
+                answers: false,
+                solution: false,
+                init: function () {
+                    this.cache();
+                    this.bindEvents();
+                    this.generateQuestion();
+                    this.generateAnswers();
+                    this.render();
+                },
+                cache: function () {
+                    this.q = document.getElementsByClassName("question")[0];
+                    this.a = document.getElementsByClassName("answers")[0];
+                    this.li = this.a.getElementsByTagName("li");
+                    this.total = document.getElementsByClassName("points")[0];
+                },
+                bindEvents: function () {
+                    this.a.addEventListener("click", this.handleClicks.bind(this));
+                },
+                render: function () {
+                    this.q.textContent = this.question;
+                    for (var i = 0; i < this.answers.length; i++) {
+                        this.li[i].textContent = this.answers[i];
+                    }
+                    this.total.textContent = this.points;
+                },
+                handleClicks: function (event) {
+                    if (+event.target.textContent === this.solution) {
+                        this.points += 1;
+                        for (var i = 0; i < this.li.length; i++) {
+                            this.li[i].classList.remove("wrong");
+                        }
+                        this.generateQuestion();
+                        this.generateAnswers();
+                        this.render();
+                    } else {
+                        event.target.classList.add("wrong");
+                        this.points -= 1;
+                        this.render();
+                    }
+                },
+                generateQuestion: function () {
+                    var a = this.random(0, 100);
+                    var b = this.random(0, 100);
+                    var op = ["+", "-", "*"][this.random(0, 2)];
+                    this.question = a + " " + op + " " + b + " ";
+                    this.solution = eval(this.question);
+                },
+                generateAnswers: function () {
+                    var answers = [
+                        this.solution,
+                        this.random(0, 100),
+                        this.random(50, 150),
+                        this.random(25, 75)
+                    ];
+                    this.answers = this.shuffle(answers);
+                },
+                shuffle: function (array) {
+                    return array.sort(function () {
+                        return 0.5 - Math.random();
+                    });
+                },
+                random: function (min, max) {
+                    return Math.floor(Math.random() * (max - min + 1) + min);
+                }
+            };
+            game.init();
+        })();
+    </script>
+</body>
+</html>
